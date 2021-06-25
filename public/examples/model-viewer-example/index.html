@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Model-viewer example (with AR)</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script nomodule src="https://unpkg.com/@google/model-viewer@v0.7.1/dist/model-viewer-legacy.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .demo {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      border: 0px solid #555;
+      box-sizing: border-box;
+    }
+
+    .demo model-viewer {
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+    }
+
+    :not(:defined) > * {
+      display: none;
+    }
+
+    model-viewer {
+      background-color: #eee;
+      overflow-x: hidden;
+      --poster-color: #eee;
+    }
+
+    #ar-button {
+      background-image: url(https://modelviewer.dev/assets/ic_modelviewer.svg);
+      background-repeat: no-repeat;
+      background-size: 20px 20px;
+      background-position: 12px 50%;
+      background-color: #fff;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      bottom: 132px;
+      padding: 0px 16px 0px 40px;
+      font-family: Roboto Regular, Helvetica Neue, sans-serif;
+      font-size: 14px;
+      color:#4285f4;
+      height: 36px;
+      line-height: 36px;
+      border-radius: 18px;
+      border: 1px solid #DADCE0;
+    }
+
+    #ar-button:active {
+      background-color: #E8EAED;
+    }
+
+    #ar-button:focus {
+      outline: none;
+    }
+
+    #ar-button:focus-visible {
+      outline: 1px solid #4285f4;
+    }
+
+    @keyframes circle {
+      from { transform: translateX(-50%) rotate(0deg) translateX(50px) rotate(0deg); }
+      to   { transform: translateX(-50%) rotate(360deg) translateX(50px) rotate(-360deg); }
+    }
+
+    @keyframes elongate {
+      from { transform: translateX(100px); }
+      to   { transform: translateX(-100px); }
+    }
+
+    model-viewer > #ar-prompt {
+      position: absolute;
+      left: 50%;
+      bottom: 175px;
+      animation: elongate 2s infinite ease-in-out alternate;
+      display: none;
+    }
+
+    model-viewer[ar-status="session-started"] > #ar-prompt {
+      display: block;
+    }
+
+    model-viewer > #ar-prompt > img {
+      animation: circle 4s linear infinite;
+    }
+
+    model-viewer > #ar-failure {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 175px;
+      display: none;
+    }
+
+    model-viewer[ar-tracking="not-tracking"] > #ar-failure {
+      display: block;
+    }
+
+    #error {
+      background-color: #ffffffdd;
+      border-radius: 16px;
+      padding: 16px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate3d(-50%, -50%, 0);
+      transition: opacity 0.3s;
+    }
+
+    #error.hide {
+      opacity: 0;
+      visibility: hidden;
+      transition: visibility 2s, opacity 1s 1s;
+    }
+  </style>
+</head>
+<body>
+  <div id="demo-container" class="demo">
+    <model-viewer src="https://dl.dropbox.com/s/d8l8yj3es9q3hgg/Covid-19.glb" camera-controls ar ar-modes="scene-viewer webxr quick-look"
+      ios-src="https://dl.dropbox.com/s/d4dneta9o2c0021/Covid-19.usdz">
+      <button slot="ar-button" id="ar-button">
+        View in your space
+      </button>
+      <div id="ar-prompt">
+        <img src="https://modelviewer.dev/shared-assets/icons/hand.png">
+      </div>
+      <button id="ar-failure">
+        AR is not tracking!
+      </button>
+    </model-viewer>
+  </div>
+  <script>
+    document.querySelector("#model-viewer").addEventListener('ar-status', (event) => {
+        if (event.detail.status === 'failed') {
+          const error = document.querySelector("#error");
+          error.classList.remove('hide');
+          error.addEventListener('transitionend', (event) => {
+            error.classList.add('hide');
+          });
+        }
+      });
+  </script>
+</body>
+</html>
